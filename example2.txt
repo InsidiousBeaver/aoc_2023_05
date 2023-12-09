@@ -1,0 +1,6 @@
+seeds: 74 14 46 4 54 9
+
+light-to-temperature map:
+45 77 23
+81 45 19
+68 64 13
