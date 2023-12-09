@@ -3,6 +3,7 @@ use std::{
     fs::{self},
     vec,
 };
+type SourceInput = Vec<u64>;
 #[derive(Debug)]
 struct CategoryMap {
     id: usize,
@@ -15,6 +16,42 @@ fn main() {
     let input_path = env::var("aoc_2023_05_path").unwrap() + "/input.txt";
     let input = fs::read_to_string(&input_path).unwrap();
 
+    let (mut src, categories_map) = parse_input(input);
+    let mut src_copy = src.clone();
+    let result = calc_part1(&mut src_copy, categories_map);
+    println!("{:?}", result);
+}
+fn calc_part1(mut src: &mut SourceInput, categories_map: Vec<CategoryMap>) -> u64 {
+    let mut cat_id = 1;
+    let mut found: Vec<u64> = vec![];
+    let mut not_found: Vec<u64> = vec![];
+
+    while cat_id < 8 {
+        while src.len() > 0 {
+            let s = src.pop().unwrap();
+            not_found.push(s);
+            for c in &categories_map {
+                if c.id == cat_id {
+                    if s >= c.src && s < c.src + c.length {
+                        let a = (s + c.dst) - c.src;
+                        found.push(a);
+                        not_found.pop();
+                    }
+                } else {
+                }
+            }
+        }
+        found.append(&mut not_found);
+        *src = found;
+        not_found.clear();
+        found = vec![];
+        cat_id += 1;
+    }
+
+    let result = src.into_iter().min().unwrap();
+    return *result;
+}
+fn parse_input(input: String) -> (SourceInput, Vec<CategoryMap>) {
     let mut src: Vec<u64> = vec![];
     let mut categories_map: Vec<CategoryMap> = vec![];
     let mut cat_id = 0;
@@ -79,34 +116,5 @@ fn main() {
         }
         categories_map.push(cm);
     }
-
-    let mut cat_id = 1;
-    let mut found: Vec<u64> = vec![];
-    let mut not_found: Vec<u64> = vec![];
-
-    while cat_id < 8 {
-        while src.len() > 0 {
-            let s = src.pop().unwrap();
-            not_found.push(s);
-            for c in &categories_map {
-                if c.id == cat_id {
-                    if s >= c.src && s < c.src + c.length {
-                        let a = (s + c.dst) - c.src;
-                        found.push(a);
-                        not_found.pop();
-                    }
-                } else {
-                }
-            }
-        }
-        found.append(&mut not_found);
-        src = found;
-        not_found.clear();
-        found = vec![];
-        cat_id += 1;
-    }
-
-    let result = src.into_iter().min().unwrap();
-    println!("{:?}", result);
-    // println!("f={:?};nf={:?}", found, not_found);
+    return (src, categories_map);
 }
